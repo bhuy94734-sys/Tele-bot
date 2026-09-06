@@ -64,43 +64,69 @@ def get_user(user_id: int):
         }
     return users_db[user_id]
 
-# --- BÀN PHÍM CHÍNH (MENU) ---
-def main_menu_kb(user_id):
-    keyboard = [
-        [
-            InlineKeyboardButton(text="👤 Tài khoản của tôi", callback_data="my_account"),
-            InlineKeyboardButton(text="💳 Nạp tiền QR Tự Động", callback_data="topup_qr"),
-        ],
-        [
-            InlineKeyboardButton(text="1. Mua Tick Xanh FB ✅", callback_data="buy_fb_tick_menu"),
-            InlineKeyboardButton(text="2. Mua Tick Xanh IG ✅", callback_data="buy_ig_tick_menu"),
-        ],
-        [
-            InlineKeyboardButton(text="3. Check UID 🔍", callback_data="check_uid"),
-            InlineKeyboardButton(text="4. Proxy 🌐", callback_data="proxy_menu"),
-        ],
-        [
-            InlineKeyboardButton(text="5. Lịch sử đơn hàng 📦", callback_data="history_orders"),
-            InlineKeyboardButton(text="6. Top Nạp 🏆", callback_data="top_recharge"),
-        ],
-        [
-            InlineKeyboardButton(text="7. Buff TikTok 🎵", callback_data="buff_tk"),
-            InlineKeyboardButton(text="8. Buff Facebook 💙", callback_data="buff_fb"),
-        ],
-        [
-            InlineKeyboardButton(text="9. Buff Instagram 🎀", callback_data="buff_ig"),
-            InlineKeyboardButton(text="10. Sửa Giấy Tờ 📄", callback_data="fix_docs"),
-        ],
-        [
-            InlineKeyboardButton(text="11. Cookie 🍪", callback_data="manage_cookies"),
-            InlineKeyboardButton(text="12. Mua Mail 📨", callback_data="buy_mail_menu"),
-        ],
-        [
-            InlineKeyboardButton(text="13. Kick thiết bị 🦿", callback_data="kick_device_menu"),
-            InlineKeyboardButton(text="Kiếm tiền 💵", callback_data="make_money_menu"),
-        ],
-    ]
+# --- BÀN PHÍM CHÍNH (MENU) 2 TRANG ---
+def main_menu_kb(user_id, page=1):
+    if page == 1:
+        keyboard = [
+            [
+                InlineKeyboardButton(text="👤 Tài khoản của tôi", callback_data="my_account"),
+                InlineKeyboardButton(text="💳 Nạp tiền QR Tự Động", callback_data="topup_qr"),
+            ],
+            [
+                InlineKeyboardButton(text="1. Mua Tick Xanh FB ✅", callback_data="buy_fb_tick_menu"),
+                InlineKeyboardButton(text="2. Mua Tick Xanh IG ✅", callback_data="buy_ig_tick_menu"),
+            ],
+            [
+                InlineKeyboardButton(text="3. Check UID 🔍", callback_data="check_uid"),
+                InlineKeyboardButton(text="4. Proxy 🌐", callback_data="proxy_menu"),
+            ],
+            [
+                InlineKeyboardButton(text="5. Lịch sử đơn hàng 📦", callback_data="history_orders"),
+                InlineKeyboardButton(text="6. Top Nạp 🏆", callback_data="top_recharge"),
+            ],
+            [
+                InlineKeyboardButton(text="➡️ Sang Trang 2", callback_data="menu_page_2"),
+            ]
+        ]
+    else:
+        keyboard = [
+            [
+                InlineKeyboardButton(text="7. Buff TikTok 🎵", callback_data="buff_tk"),
+                InlineKeyboardButton(text="8. Buff Facebook 💙", callback_data="buff_fb"),
+            ],
+            [
+                InlineKeyboardButton(text="9. Buff Instagram 🎀", callback_data="buff_ig"),
+                InlineKeyboardButton(text="10. Sửa Giấy Tờ 📄", callback_data="fix_docs"),
+            ],
+            [
+                InlineKeyboardButton(text="11. Cookie 🍪", callback_data="manage_cookies"),
+                InlineKeyboardButton(text="12. Mua Mail 📨", callback_data="buy_mail_menu"),
+            ],
+            [
+                InlineKeyboardButton(text="13. Kick thiết bị 🦿", callback_data="kick_device_menu"),
+                InlineKeyboardButton(text="Kiếm tiền 💵", callback_data="make_money_menu"),
+            ],
+            [
+                InlineKeyboardButton(text="⬅️ Về Trang 1", callback_data="menu_page_1"),
+            ]
+        ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+@dp.callback_query(F.data == "menu_page_1")
+async def cb_menu_page_1(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    user = get_user(user_id)
+    text = f"🏠 **MENU CHÍNH (Trang 1/2)**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
+    await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=1))
+    await callback.answer()
+
+@dp.callback_query(F.data == "menu_page_2")
+async def cb_menu_page_2(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    user = get_user(user_id)
+    text = f"🏠 **MENU CHÍNH (Trang 2/2)**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
+    await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=2))
+    await callback.answer()
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
@@ -128,7 +154,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
         f"💡 Hướng dẫn nạp tiền nhanh: Gõ `/naptien [số_tiền]` (Ví dụ: `/naptien 100000`)\n\n"
         f"Vui lòng chọn chức năng bên dưới:"
     )
-    await message.answer(welcome_text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id))
+    await message.answer(welcome_text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=1))
 
 @dp.message(Command("sd"))
 async def cmd_check_balance(message: types.Message):
@@ -199,7 +225,7 @@ async def cb_back_to_menu(callback: types.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     user = get_user(user_id)
     text = f"🏠 **MENU CHÍNH**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
-    await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id))
+    await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=1))
     await callback.answer()
 
 # ==========================================
