@@ -64,7 +64,7 @@ def get_user(user_id: int):
         }
     return users_db[user_id]
 
-# --- BÀN PHÍM CHÍNH (MENU) 2 TRANG ---
+# --- BÀN PHÍM CHÍNH (MENU) CHIA 2 TRANG ---
 def main_menu_kb(user_id, page=1):
     if page == 1:
         keyboard = [
@@ -224,7 +224,7 @@ async def cb_back_to_menu(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     user_id = callback.from_user.id
     user = get_user(user_id)
-    text = f"🏠 **MENU CHÍNH**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
+    text = f"🏠 **MENU CHÍNH (Trang 1/2)**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
     await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=1))
     await callback.answer()
 
@@ -506,14 +506,14 @@ async def cb_proxy_menu(callback: types.CallbackQuery):
 async def cb_proxy_vn(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🌐 **Proxy Việt Nam**: Tốc độ cao.\nGiá: 50,000đ/tháng.",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
     )
 
 @dp.callback_query(F.data == "proxy_foreign")
 async def cb_proxy_foreign(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🌍 **Proxy Ngoại Quốc**: US/UK sạch sẽ.\nGiá: 80,000đ/tháng.",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
     )
 
 @dp.callback_query(F.data == "block_ip")
@@ -521,7 +521,7 @@ async def cb_block_ip(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form.waiting_for_ip_address)
     await callback.message.edit_text(
         "🛡️ **CHẶN IP**\nGiá: **300,000đ**\nVui lòng nhập địa chỉ IP cần thao tác:",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
     )
     await callback.answer()
 
@@ -548,7 +548,7 @@ async def cb_fix_ip_menu(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form.waiting_for_fix_ip)
     await callback.message.edit_text(
         "📱 **RỬA IP / FIX IP**\nGiá: **150,000đ**\n\nVui lòng nhập địa chỉ IP của bạn:",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
     )
     await callback.answer()
 
@@ -615,7 +615,7 @@ async def cb_buff_select_service(callback: types.CallbackQuery, state: FSMContex
     _, _, p_key, price_str = callback.data.split("_")
     await state.update_data(buff_price=int(price_str), buff_platform=p_key)
     await state.set_state(Form.waiting_for_buff_link)
-    await callback.message.edit_text("🔗 Gửi **Link/URL** cần buff:", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data=p_key)]]))
+    await callback.message.edit_text("🔗 Gửi **Link/URL** cần buff:", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]))
     await callback.answer()
 
 @dp.message(Form.waiting_for_buff_link)
@@ -718,7 +718,7 @@ async def cb_kick_device_menu(callback: types.CallbackQuery, state: FSMContext):
     text = "🦿 **KICK THIẾT BỊ**\nNhập số thứ tự nền tảng:\n"
     for idx, (p_name, p_price) in KICK_PLATFORMS.items():
         text += f"{idx}. {p_name} — {p_price:,.0f}đ\n"
-    await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="back_to_menu")]]))
+    await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]))
     await callback.answer()
 
 @dp.message(Form.waiting_for_kick_platform_id)
@@ -758,7 +758,7 @@ async def cb_make_money_menu(callback: types.CallbackQuery):
 async def cb_game_taixiu(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🎲 **TÀI XỈU**\nLệnh cược: `/Tai (số tiền)` hoặc `/Xiu (số tiền)` (Tối thiểu 20k, Thưởng x1.95)",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="make_money_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
     )
     await callback.answer()
 
@@ -766,7 +766,7 @@ async def cb_game_taixiu(callback: types.CallbackQuery):
 async def cb_game_bowling(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🎳 **BOWLING**\nLệnh cược: `/Chan (số tiền)` hoặc `/Le (số tiền)` (Tối thiểu 20k, Thưởng x1.85)",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="make_money_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
     )
     await callback.answer()
 
@@ -905,7 +905,6 @@ async def cmd_thongbao(message: types.Message):
         parse_mode="Markdown"
     )
 
-
 # ==========================================
 # 🤖 CODE TÍCH HỢP CON BOT PHỤ (NHẬT KÝ KHO HÀNG)
 # ==========================================
@@ -945,7 +944,6 @@ async def stock_bot_start(message: types.Message):
         "`/them [mã_kho] [nội_dung]`",
         parse_mode="Markdown"
     )
-
 
 # --- KHỞI CHẠY SONG SONG 2 CON BOT & WEB SERVER ---
 async def main():
