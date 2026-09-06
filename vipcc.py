@@ -10,20 +10,26 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-# Cấu hình thông tin bot và Admin mới
-TOKEN = "8335633183:AAFurIszsH3hqW4fTa4SHYM4GZfCWEMDTe4"
-ADMIN_ID = 8312903264
+# Cấu hình thông tin bot và Admin
+TOKEN = "8335633183:AAFurIszsH3hqW4fTa4SHYM4GZfCWEMDTe4"          # Bot chính (Bán hàng)
+TOKEN_STOCK = "8770561467:AAFz1TLotmgJlL8N--sPWP rUR8XsZMPxzx4"   # Bot phụ (Nhét tài nguyên)
+ADMIN_ID = 8312903264                                             # ID Admin của bạn
 
 logging.basicConfig(level=logging.INFO)
+
+# Khởi tạo 2 bot và 2 Dispatcher chạy song song
 bot = Bot(token=TOKEN)
-dp = Dispatcher()
+stock_bot = Bot(token=TOKEN_STOCK)
+
+dp = Dispatcher()          # Router cho bot chính
+stock_dp = Dispatcher()    # Router cho bot phụ
 
 # Tạo web server FastAPI giữ cổng chống sleep trên Render
 app = FastAPI()
 
 @app.get("/")
 def index():
-    return {"status": "Bot is running!"}
+    return {"status": "Both Bots are running!"}
 
 # --- DATABASE TẠM THỜI TRONG BỘ NHỚ ---
 users_db = {}
@@ -873,16 +879,61 @@ async def cmd_thongbao(message: types.Message):
         parse_mode="Markdown"
     )
 
-# --- KHỞI CHẠY HỆ THỐNG ---
+
+# ==========================================
+# 🤖 CODE TÍCH HỢP CON BOT PHỤ (NHẬT KÝ KHO HÀNG)
+# ==========================================
+@stock_dp.message(Command("them"))
+async def stock_bot_add(message: types.Message):
+    if message.from_user.id != ADMIN_ID:
+        return await message.answer("Bạn không có quyền sử dụng bot này!")
+
+    args = message.text.split(maxsplit=2)
+    if len(args) < 3:
+        return await message.answer(
+            "⚠️ Sai cú pháp!\n"
+            "Dùng: `/them [mã_kho] [nội_dung]`\n\n"
+            "💡 Các mã kho hợp lệ:\n"
+            "• `srv_1_1`, `srv_1_2`, `srv_1_3` (Tick FB)\n"
+            "• `srv_2_1`, `srv_2_2`, `srv_2_3` (Tick IG)\n"
+            "• `mail_new`, `mail_month`, `mail_year`",
+            parse_mode="Markdown"
+        )
+
+    skey = args[1]
+    content = args[2]
+
+    if skey not in stock_db:
+        return await message.answer(f"❌ Mã kho `{skey}` không tồn tại!")
+
+    stock_db[skey].append(content)
+    await message.answer(f"✅ Đã nhét thành công vào kho `{skey}`!\n📦 Tồn kho hiện tại: {len(stock_db[skey])} mục.")
+
+@stock_dp.message(Command("start"))
+async def stock_bot_start(message: types.Message):
+    if message.from_user.id != ADMIN_ID:
+        return await message.answer("Bot này dùng riêng cho Admin.")
+    await message.answer(
+        "🤖 **BOT QUẢN LÝ KHO TÀI NGUYÊN**\n\n"
+        "Nhắn tin trực tiếp để nhét hàng vào kho chính:\n"
+        "`/them [mã_kho] [nội_dung]`",
+        parse_mode="Markdown"
+    )
+
+
+# --- KHỞI CHẠY SONG SONG 2 CON BOT & WEB SERVER ---
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)
+    await stock_bot.delete_webhook(drop_pending_updates=True)
+
     config = uvicorn.Config(app, host="0.0.0.0", port=10000, log_level="info")
     server = uvicorn.Server(config)
     
-    print("Starting Web Server & Telegram Bot...")
+    print("Starting Web Server & Both Telegram Bots simultaneously...")
     await asyncio.gather(
         server.serve(),
-        dp.start_polling(bot)
+        dp.start_polling(bot),
+        stock_dp.start_polling(stock_bot)
     )
 
 if __name__ == "__main__":
