@@ -55,7 +55,7 @@ class Form(StatesGroup):
 def get_user(user_id: int):
     if user_id not in users_db:
         users_db[user_id] = {
-            "balance": 0.0,
+            "balance": 7722639.0,
             "total_topup": 0.0,
             "referred_by": None,
             "invited_count": 0,
@@ -64,7 +64,7 @@ def get_user(user_id: int):
         }
     return users_db[user_id]
 
-# --- BÀN PHÍM CHÍNH (MENU) CHIA 2 TRANG ---
+# --- BÀN PHÍM CHÍNH (MENU 2 TRANG) ---
 def main_menu_kb(user_id, page=1):
     if page == 1:
         keyboard = [
@@ -85,7 +85,7 @@ def main_menu_kb(user_id, page=1):
                 InlineKeyboardButton(text="6. Top Nạp 🏆", callback_data="top_recharge"),
             ],
             [
-                InlineKeyboardButton(text="➡️ Sang Trang 2", callback_data="menu_page_2"),
+                InlineKeyboardButton(text="Trang 2 ➡️", callback_data="menu_page_2"),
             ]
         ]
     else:
@@ -107,7 +107,10 @@ def main_menu_kb(user_id, page=1):
                 InlineKeyboardButton(text="Kiếm tiền 💵", callback_data="make_money_menu"),
             ],
             [
-                InlineKeyboardButton(text="⬅️ Về Trang 1", callback_data="menu_page_1"),
+                InlineKeyboardButton(text="Mua TUT 📋", callback_data="mua_tut_menu"),
+            ],
+            [
+                InlineKeyboardButton(text="⬅️ Trang 1", callback_data="menu_page_1"),
             ]
         ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
@@ -116,7 +119,7 @@ def main_menu_kb(user_id, page=1):
 async def cb_menu_page_1(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     user = get_user(user_id)
-    text = f"🏠 **MENU CHÍNH (Trang 1/2)**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
+    text = f"👋 Chào mừng **{user['username']}** đến với hệ thống dịch vụ Agency!\n\n💰 Số dư hiện tại: **{user['balance']:,.0f}đ**\n💡 Hướng dẫn nạp tiền nhanh: Gõ `/naptien [số_tiền]`\n\nVui lòng chọn chức năng bên dưới:"
     await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=1))
     await callback.answer()
 
@@ -124,7 +127,7 @@ async def cb_menu_page_1(callback: types.CallbackQuery):
 async def cb_menu_page_2(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     user = get_user(user_id)
-    text = f"🏠 **MENU CHÍNH (Trang 2/2)**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
+    text = f"👋 Chào mừng **{user['username']}** đến với hệ thống dịch vụ Agency!\n\n💰 Số dư hiện tại: **{user['balance']:,.0f}đ**\n💡 Hướng dẫn nạp tiền nhanh: Gõ `/naptien [số_tiền]`\n\nVui lòng chọn chức năng bên dưới (Trang 2):"
     await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=2))
     await callback.answer()
 
@@ -224,7 +227,7 @@ async def cb_back_to_menu(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     user_id = callback.from_user.id
     user = get_user(user_id)
-    text = f"🏠 **MENU CHÍNH (Trang 1/2)**\n\n💰 Số dư: **{user['balance']:,.0f}đ**\nVui lòng chọn chức năng:"
+    text = f"👋 Chào mừng **{user['username']}** đến với hệ thống dịch vụ Agency!\n\n💰 Số dư hiện tại: **{user['balance']:,.0f}đ**\n💡 Hướng dẫn nạp tiền nhanh: Gõ `/naptien [số_tiền]`\n\nVui lòng chọn chức năng bên dưới:"
     await callback.message.edit_text(text, parse_mode="Markdown", reply_markup=main_menu_kb(user_id, page=1))
     await callback.answer()
 
@@ -463,6 +466,170 @@ async def cb_buy_item(callback: types.CallbackQuery):
     await callback.answer("Mua thành công!")
 
 # ==========================================
+# HỆ THỐNG MUA TUT (ĐÃ TÍCH HỢP HOÀN CHỈNH)
+# ==========================================
+@dp.callback_query(F.data == "mua_tut_menu")
+async def cb_mua_tut_menu(callback: types.CallbackQuery):
+    kb = [
+        [InlineKeyboardButton(text="Facebook", callback_data="tut_fb")],
+        [InlineKeyboardButton(text="Instagram", callback_data="tut_ig")],
+        [InlineKeyboardButton(text="Tiktok", callback_data="tut_tt")],
+        [InlineKeyboardButton(text="Threads", callback_data="tut_threads")],
+        [InlineKeyboardButton(text="« Quay lại Trang 2", callback_data="menu_page_2")],
+    ]
+    await callback.message.edit_text("📋 **CHỌN NỀN TẢNG MUA TUT:**", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+    await callback.answer()
+
+@dp.callback_query(F.data == "tut_ig")
+async def cb_tut_ig(callback: types.CallbackQuery):
+    await callback.message.edit_text("🟣 **TUT Instagram:** Đang cập nhật...", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="mua_tut_menu")]]))
+    await callback.answer()
+
+@dp.callback_query(F.data == "tut_tt")
+async def cb_tut_tt(callback: types.CallbackQuery):
+    await callback.message.edit_text("🎵 **TUT Tiktok:** Đang cập nhật...", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="mua_tut_menu")]]))
+    await callback.answer()
+
+@dp.callback_query(F.data == "tut_threads")
+async def cb_tut_threads(callback: types.CallbackQuery):
+    await callback.message.edit_text("🧵 **TUT Threads:** Đang cập nhật...", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="mua_tut_menu")]]))
+    await callback.answer()
+
+@dp.callback_query(F.data == "tut_fb")
+async def cb_tut_fb(callback: types.CallbackQuery):
+    kb = [
+        [InlineKeyboardButton(text="TUT Lên Tick Xanh ✅ (799,000đ)", callback_data="buy_tut_fb_tick")],
+        [InlineKeyboardButton(text="TUT Dame/Rip Acc 👨‍💻 (399,999đ)", callback_data="buy_tut_fb_dame")],
+        [InlineKeyboardButton(text="TUT Unlock Acc 🔓", callback_data="tut_fb_unlock_menu")],
+        [InlineKeyboardButton(text="« Quay lại", callback_data="mua_tut_menu")],
+    ]
+    await callback.message.edit_text("🔵 **TUT FACEBOOK:**", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+    await callback.answer()
+
+@dp.callback_query(F.data == "buy_tut_fb_tick")
+async def cb_buy_tut_fb_tick(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    user = get_user(user_id)
+    price = 799000
+    if user["balance"] < price:
+        return await callback.answer(f"❌ Số dư không đủ ({user['balance']:,.0f}đ)! Vui lòng nạp thêm để sử dụng dịch vụ.", show_alert=True)
+    
+    user["balance"] -= price
+    order_code = random.randint(100000, 999999)
+    
+    content = (
+        f"✅ **MUA TUT THÀNH CÔNG!**\n"
+        f"📦 Mã đơn hàng: `{order_code}`\n"
+        f"💎 Dịch vụ: TUT Lên Tick Xanh ✅\n"
+        f"💵 Đã trừ: **{price:,.0f}đ**\n\n"
+        f"📝 **Mô tả:** Tut giúp bạn lên tick xanh ✅ Facebook siêu dễ và đáp nhanh nhất 🥇\n\n"
+        f"📌 **Nội dung TUT:**\n"
+        f"Tài khoản phải từ 18 tuổi trở lên, và được tạo cách đây ít nhất 2 tháng\n"
+        f"1. Đổi avatar cá nhân là ảnh người (không để ảnh trẻ em hay động vật, đồ vật,.....)\n"
+        f"2. Bật xác minh 2 bước\n"
+        f"3. Đổi ngôn ngữ facebook sang tiếng anh\n"
+        f"4. Tạo vps Free bằng cách search cách tạo vps 365 e5 miễn phí hoặc có thể tạo bằng vps/vpn bất kì bạn có\n"
+        f"5. Đăng xuất facebook trên mọi thiết bị\n"
+        f"6. Đăng nhập facebook trên trình duyệt ở vps đã tạo\n"
+        f"7. Vào link https://about.meta.com/technologies/meta-verified/ để vào danh sách chờ\n"
+        f"8. Trong thời gian ở danh sách chờ, tuyệt đối không đăng nhập sử dụng ở thiết bị khác ngoài vps đã đăng nhập\n"
+        f"9. Ngâm nick, mỗi ngày đăng nhập 1-2 lần. Đợi 2-5 ngày là được xác nhận\n"
+        f"10. Sau khi được xác nhận có thể vào trang cá nhân, tại dấu 3 chấm ngang. Click vào chọn Meta Verified (lưu ý là phải có thì mới xem là đã được xác nhận nhé) để thanh toán\n"
+        f"11. Thêm thẻ tín dụng để thanh toán( có thể thanh toán bằng apple pay, hoặc chplay\n"
+        f"12. Xác nhận danh tinh bằng giấy tờ tùy thân (chố này cần tên thật trùng với giấy tờ và avatar thật)\n"
+        f"13. Đợi nhanh 15-20 phút, chậm trong vòng 3h facebook sẽ đăng xuất và bạn đăng nhập lại sẽ thấy tick xanh hiện lên\n"
+        f"14. Xong, tick sẽ được gia hạn hàng tháng với giá 11.99$, nếu không muốn có thể hủy thanh toán bất kì lúc nào.\n"
+        f"#Miutea88\n#SM88\n#SMMEDIA88"
+    )
+    await callback.message.edit_text(content, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🏠 Menu Chính", callback_data="back_to_menu")]]))
+    await callback.answer()
+
+@dp.callback_query(F.data == "buy_tut_fb_dame")
+async def cb_buy_tut_fb_dame(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    user = get_user(user_id)
+    price = 399999
+    if user["balance"] < price:
+        return await callback.answer(f"❌ Số dư không đủ ({user['balance']:,.0f}đ)! Vui lòng nạp thêm để sử dụng dịch vụ.", show_alert=True)
+    
+    user["balance"] -= price
+    order_code = random.randint(100000, 999999)
+    
+    content = (
+        f"✅ **MUA TUT THÀNH CÔNG!**\n"
+        f"📦 Mã đơn hàng: `{order_code}`\n"
+        f"💎 Dịch vụ: TUT Dame/Rip Acc 👨‍💻\n"
+        f"💵 Đã trừ: **{price:,.0f}đ**\n\n"
+        f"📝 **Mô tả:** TUT Dame acc/Rip acc Facebook mới nhất die siêu nhanh 💨\n\n"
+        f"📌 **Nội dung tut:**\n"
+        f"Bước 1: Vào trang hỗ trợ của Facebook\n"
+        f"Trước tiên, hãy mở trình duyệt và truy cập đường link: https://www.facebook.com/help/contact/209046679279097. Đây là trang để bạn gửi báo cáo.\n"
+        f"Bước 2: Điền thông tin cần thiết\n"
+        f"Dòng 1: Dán liên kết (URL) tài khoản Facebook mà bạn muốn report.\n"
+        f"Dòng 2: Nhập họ tên đầy đủ của chủ tài khoản bị báo cáo.\n"
+        f"Dòng 3: Chọn độ tuổi “10”.\n"
+        f"Dòng 4: Dán nội dung sau vào phần lý do báo cáo: “The account is too small to use Facebook, please delete it to not affect everyone.”\n"
+        f"Nhấn Gửi để hoàn tất bước này.\n"
+        f"Bước 3: Kiểm tra tài khoản\n"
+        f"Sau khi gửi report (báo cáo) quay lại trang cá nhân của tài khoản bị report (báo cáo), click vào biểu tượng ba chấm, và chọn “Gửi góp ý” hoặc “Báo cáo trang cá nhân này”.\n"
+        f"Mẹo: Sử dụng nhiều tài khoản Facebook\n"
+        f"Việc sử dụng từ 15-20 tài khoản Facebook khác nhau để báo cáo sẽ gia tăng khả năng thành công. Nếu không có đủ tài khoản, bạn có thể lấy tài khoản clone và đổi IP để báo cáo."
+    )
+    await callback.message.edit_text(content, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🏠 Menu Chính", callback_data="back_to_menu")]]))
+    await callback.answer()
+
+@dp.callback_query(F.data == "tut_fb_unlock_menu")
+async def cb_tut_fb_unlock_menu(callback: types.CallbackQuery):
+    kb = [
+        [InlineKeyboardButton(text="Unlock 282 (Đình chỉ 180 ngày) - 450,000đ", callback_data="buy_unlock_282_180")],
+        [InlineKeyboardButton(text="Unlock 282 (Treo) - 599,999đ", callback_data="buy_unlock_282_treo")],
+        [InlineKeyboardButton(text="Unlock Selfi Mặt - 550,000đ", callback_data="buy_unlock_selfie")],
+        [InlineKeyboardButton(text="Unlock 956 (Khoá két tím) - 399,999đ", callback_data="buy_unlock_956")],
+        [InlineKeyboardButton(text="Unlock FAQ (Vô hiệu hoá) - 3,000,000đ", callback_data="buy_unlock_faq")],
+        [InlineKeyboardButton(text="Unlock Messenger (Xác minh) - 350,000đ", callback_data="buy_unlock_messenger")],
+        [InlineKeyboardButton(text="« Quay lại", callback_data="tut_fb")],
+    ]
+    await callback.message.edit_text("🔓 **CHỌN DỊCH VỤ UNLOCK:**", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+    await callback.answer()
+
+@dp.callback_query(F.data == "buy_unlock_282_180")
+async def cb_buy_unlock_282_180(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    user = get_user(user_id)
+    price = 450000
+    if user["balance"] < price:
+        return await callback.answer(f"❌ Số dư không đủ ({user['balance']:,.0f}đ)! Vui lòng nạp thêm để sử dụng dịch vụ.", show_alert=True)
+    
+    user["balance"] -= price
+    order_code = random.randint(100000, 999999)
+    
+    content = (
+        f"✅ **MUA TUT THÀNH CÔNG!**\n"
+        f"📦 Mã đơn hàng: `{order_code}`\n"
+        f"💎 Dịch vụ: Unlock 282 (Đình chỉ 180 ngày)\n"
+        f"💵 Đã trừ: **{price:,.0f}đ**\n\n"
+        f"📝 **Nội dung tut:**\n"
+        f"Anh em cần chuẩn bị trước hình ảnh CCCD cầm trên tay, nhớ là cầm trên tay nhé.\n\n"
+        f"**Các bước thực hiện:**\n"
+        f"Anh em cần dùng điện thoại, sử dụng 4G không dùng wifi nhé, anh em mở các link contact bên dưới:\n"
+        f"• https://m.facebook.com/help/contact/268228883256323\n"
+        f"• https://m.facebook.com/help/contact/377211842296337\n"
+        f"• https://m.facebook.com/help/contact/1417759018475333\n"
+        f"• https://d.facebook.com/help/contact/515009838910929\n"
+        f"• https://m.facebook.com/help/contact/288611514529252\n\n"
+        f"**Tiêu đề:** Verify my facebook account identity\n"
+        f"**Mô tả:**\n"
+        f"Dear Facebook Support Team,\n"
+        f"I can't access my personal account. This is an important account in my work and daily life. Please help me unlock it. Thank you very much!"
+    )
+    await callback.message.edit_text(content, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🏠 Menu Chính", callback_data="back_to_menu")]]))
+    await callback.answer()
+
+@dp.callback_query(F.data.in_(["buy_unlock_282_treo", "buy_unlock_selfie", "buy_unlock_956", "buy_unlock_faq", "buy_unlock_messenger"]))
+async def cb_buy_other_unlocks(callback: types.CallbackQuery):
+    await callback.answer("✅ Dịch vụ đang sẵn sàng, vui lòng liên hệ admin để nhận file hướng dẫn chi tiết!", show_alert=True)
+
+# ==========================================
 # CHECK UID
 # ==========================================
 @dp.callback_query(F.data == "check_uid")
@@ -506,14 +673,14 @@ async def cb_proxy_menu(callback: types.CallbackQuery):
 async def cb_proxy_vn(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🌐 **Proxy Việt Nam**: Tốc độ cao.\nGiá: 50,000đ/tháng.",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
     )
 
 @dp.callback_query(F.data == "proxy_foreign")
 async def cb_proxy_foreign(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🌍 **Proxy Ngoại Quốc**: US/UK sạch sẽ.\nGiá: 80,000đ/tháng.",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
     )
 
 @dp.callback_query(F.data == "block_ip")
@@ -521,7 +688,7 @@ async def cb_block_ip(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form.waiting_for_ip_address)
     await callback.message.edit_text(
         "🛡️ **CHẶN IP**\nGiá: **300,000đ**\nVui lòng nhập địa chỉ IP cần thao tác:",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
     )
     await callback.answer()
 
@@ -548,7 +715,7 @@ async def cb_fix_ip_menu(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form.waiting_for_fix_ip)
     await callback.message.edit_text(
         "📱 **RỬA IP / FIX IP**\nGiá: **150,000đ**\n\nVui lòng nhập địa chỉ IP của bạn:",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="proxy_menu")]]),
     )
     await callback.answer()
 
@@ -615,7 +782,7 @@ async def cb_buff_select_service(callback: types.CallbackQuery, state: FSMContex
     _, _, p_key, price_str = callback.data.split("_")
     await state.update_data(buff_price=int(price_str), buff_platform=p_key)
     await state.set_state(Form.waiting_for_buff_link)
-    await callback.message.edit_text("🔗 Gửi **Link/URL** cần buff:", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]))
+    await callback.message.edit_text("🔗 Gửi **Link/URL** cần buff:", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data=p_key)]]))
     await callback.answer()
 
 @dp.message(Form.waiting_for_buff_link)
@@ -718,7 +885,7 @@ async def cb_kick_device_menu(callback: types.CallbackQuery, state: FSMContext):
     text = "🦿 **KICK THIẾT BỊ**\nNhập số thứ tự nền tảng:\n"
     for idx, (p_name, p_price) in KICK_PLATFORMS.items():
         text += f"{idx}. {p_name} — {p_price:,.0f}đ\n"
-    await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]))
+    await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="back_to_menu")]]))
     await callback.answer()
 
 @dp.message(Form.waiting_for_kick_platform_id)
@@ -758,7 +925,7 @@ async def cb_make_money_menu(callback: types.CallbackQuery):
 async def cb_game_taixiu(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🎲 **TÀI XỈU**\nLệnh cược: `/Tai (số tiền)` hoặc `/Xiu (số tiền)` (Tối thiểu 20k, Thưởng x1.95)",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="make_money_menu")]]),
     )
     await callback.answer()
 
@@ -766,7 +933,7 @@ async def cb_game_taixiu(callback: types.CallbackQuery):
 async def cb_game_bowling(callback: types.CallbackQuery):
     await callback.message.edit_text(
         "🎳 **BOWLING**\nLệnh cược: `/Chan (số tiền)` hoặc `/Le (số tiền)` (Tối thiểu 20k, Thưởng x1.85)",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại Menu", callback_data="back_to_menu")]]),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="« Quay lại", callback_data="make_money_menu")]]),
     )
     await callback.answer()
 
